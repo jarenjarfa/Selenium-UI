@@ -26,7 +26,20 @@ public class Hooks {
     }
     
     @After
-    public void tearDown() {
+    public void tearDown(io.cucumber.java.Scenario scenario) {
+        // Take screenshot if scenario failed
+        if (scenario.isFailed()) {
+            try {
+                WebDriver driver = DriverManager.getDriver();
+                if (driver instanceof org.openqa.selenium.TakesScreenshot) {
+                    byte[] screenshot = ((org.openqa.selenium.TakesScreenshot) driver)
+                        .getScreenshotAs(org.openqa.selenium.OutputType.BYTES);
+                    scenario.attach(screenshot, "image/png", "Failed Screenshot");
+                }
+            } catch (Exception ex) {
+                System.err.println("Unable to capture screenshot on failure: " + ex.getMessage());
+            }
+        }
         DriverManager.removeDriver();
     }
 }
