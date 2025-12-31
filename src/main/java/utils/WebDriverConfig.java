@@ -13,7 +13,7 @@ import java.net.URL;
 
 public class WebDriverConfig {
     
-    private static final String GRID_URL = "http://192.168.10.69:4444";
+    private static final String GRID_URL = "http://localhost:4444";
     private static final String BROWSER = System.getProperty("browser", "chrome");
     private static final String RUN_MODE = System.getProperty("runMode", "local");
     
