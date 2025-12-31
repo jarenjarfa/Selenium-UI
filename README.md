@@ -1,37 +1,98 @@
-# Selenium UI Testing with Grid Support
+# Selenium UI Testing Framework
 
-This project demonstrates Selenium UI testing with support for both local execution and Selenium Grid.
+A comprehensive Selenium WebDriver testing framework built with Java, Maven, and Cucumber BDD. This project demonstrates modern UI testing practices with support for both local execution and Selenium Grid distributed testing.
 
-## Prerequisites
+## 🚀 Features
 
-- Java 21
-- Maven 3.6+
-- Chrome or Firefox browser (for local execution)
-- Selenium Grid Hub running on `http://192.168.10.69:4444`
+- **Page Object Model (POM)**: Clean separation of page elements and business logic
+- **Cucumber BDD**: Behavior-driven development with Gherkin syntax
+- **Selenium Grid Support**: Run tests on remote Selenium Grid for distributed execution
+- **Multi-browser Support**: Chrome and Firefox browser support
+- **Thread-safe Driver Management**: ThreadLocal-based WebDriver management for parallel execution
+- **Configurable Execution**: Easy switching between local and grid execution modes
+- **Explicit Waits**: Robust element waiting strategies using WebDriverWait
+- **Maven Profiles**: Pre-configured profiles for different execution scenarios
 
-## Project Structure
+## 📋 Prerequisites
+
+- **Java 21** or higher
+- **Maven 3.6+**
+- **Chrome or Firefox browser** (for local execution)
+- **ChromeDriver/GeckoDriver** in PATH (for local execution)
+- **Selenium Grid Hub** running on `http://192.168.10.69:4444` (for grid execution)
+
+## 🏗️ Project Structure
 
 ```
 src/
 ├── main/java/
-│   ├── pages/           # Page Object Model classes
-│   └── utils/           # Utility classes including WebDriverConfig
+│   ├── pages/
+│   │   ├── CommonPage.java      # Base page with common utilities
+│   │   └── SearchPage.java      # Google search page implementation
+│   └── utils/
+│       ├── DriverManager.java   # Thread-safe WebDriver management
+│       └── WebDriverConfig.java # WebDriver initialization and configuration
 └── test/java/
-    ├── features/        # Cucumber feature files
-    ├── runners/         # Test runners
-    └── stepDefinitions/ # Step definition implementations
+    ├── features/
+    │   └── Search.feature       # Cucumber feature file
+    ├── runners/
+    │   └── TestRunner.java      # Cucumber test runner
+    └── stepDefinitions/
+        ├── Hooks.java           # Setup and teardown hooks
+        └── SearchSteps.java     # Step definition implementations
 ```
 
-## Running Tests
+## 🛠️ Technologies
+
+- **Selenium WebDriver 4.27.0**: Browser automation
+- **Cucumber 7.14.0**: BDD framework
+- **JUnit 4.13.2**: Test execution framework
+- **Maven**: Build and dependency management
+
+## ⚙️ Configuration
+
+### System Properties
+
+The framework uses system properties to configure execution:
+
+- `runMode`: Execution mode - `"local"` or `"grid"` (default: `"local"`)
+- `browser`: Browser type - `"chrome"` or `"firefox"` (default: `"chrome"`)
+
+### Grid Configuration
+
+- **Grid URL**: `http://192.168.10.69:4444`
+- **Chrome Options**: 
+  - `--no-sandbox`
+  - `--disable-dev-shm-usage`
+  - `--disable-gpu`
+  - `--window-size=1920,1080`
+- **Firefox Options**: Window size 1920x1080
+
+### Maven Profiles
+
+The project includes three Maven profiles:
+
+1. **local** (default): Runs tests locally with Chrome
+2. **grid**: Runs tests on Selenium Grid with Chrome
+3. **grid-firefox**: Runs tests on Selenium Grid with Firefox
+
+## 🏃 Running Tests
 
 ### Local Execution (Default)
+
 ```bash
+# Run with default profile (local + Chrome)
 mvn test
-# or explicitly
+
+# Explicitly specify local profile
 mvn test -Plocal
+
+# Run with Firefox locally
+mvn test -Plocal -Dbrowser=firefox
 ```
 
 ### Selenium Grid Execution
+
 ```bash
 # Run with Chrome on Grid
 mvn test -Pgrid
@@ -40,51 +101,136 @@ mvn test -Pgrid
 mvn test -Pgrid-firefox
 ```
 
-### Custom Browser and Mode
+### Custom Configuration
+
 ```bash
 # Override browser and mode via system properties
 mvn test -DrunMode=grid -Dbrowser=firefox
+
+# Run with specific profile and override browser
+mvn test -Pgrid -Dbrowser=firefox
 ```
 
-## Configuration
+## 📖 Test Scenarios
 
-The `WebDriverConfig` class handles WebDriver initialization based on:
-- `runMode`: "local" or "grid"
-- `browser`: "chrome" or "firefox"
+The framework currently includes:
 
-### Grid Configuration
-- Grid URL: `http://192.168.10.69:4444`
-- Chrome options include: `--no-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu`
-- Window size: 1920x1080
+- **Google Search Test**: Tests Google search functionality and AI Overview visibility
+  - Navigate to Google search page
+  - Enter search keyword
+  - Verify AI Overview is displayed
 
-## Features
+## 🏛️ Architecture
 
-- **Page Object Model**: Clean separation of page elements and actions
-- **Cucumber BDD**: Behavior-driven development with Gherkin syntax
-- **Grid Support**: Run tests on remote Selenium Grid
-- **Multi-browser**: Support for Chrome and Firefox
-- **Configurable**: Easy switching between local and grid execution
+### Page Object Model
 
-## Test Execution Flow
+- **CommonPage**: Base class providing common utilities:
+  - Element visibility waiting
+  - Element clickability waiting
+  - Keyword input handling
+  - Element visibility checking
+  - Enter key simulation
 
-1. `@Before` method initializes WebDriver based on configuration
-2. Tests navigate to Google search page
-3. Search functionality is tested
-4. AI Overview visibility is verified
-5. `@After` method cleans up WebDriver resources
+- **SearchPage**: Google search page implementation:
+  - Search bar interaction
+  - AI Overview verification
 
-## Troubleshooting
+### Driver Management
+
+- **DriverManager**: Thread-safe WebDriver management using ThreadLocal
+  - `getDriver()`: Get current thread's WebDriver instance
+  - `setDriver()`: Set WebDriver for current thread
+  - `removeDriver()`: Clean up and remove WebDriver instance
+
+### Hooks
+
+- **@Before**: Initializes WebDriver based on configuration
+  - Creates local or grid driver
+  - Maximizes browser window
+  - Sets driver in DriverManager
+  - Logs execution mode and browser
+
+- **@After**: Cleans up WebDriver resources
+  - Quits and removes driver from ThreadLocal
+
+### WebDriver Configuration
+
+- **WebDriverConfig**: Centralized WebDriver creation
+  - Reads system properties for runMode and browser
+  - Creates appropriate driver (local or remote)
+  - Configures browser options
+  - Provides configuration getters
+
+## 🔍 Test Execution Flow
+
+1. **Setup Phase** (`@Before` hook):
+   - Read `runMode` and `browser` system properties
+   - Initialize WebDriver (local or grid)
+   - Maximize browser window
+   - Store driver in DriverManager
+
+2. **Test Execution**:
+   - Navigate to Google search page
+   - Enter search keyword
+   - Submit search
+   - Verify AI Overview visibility
+
+3. **Teardown Phase** (`@After` hook):
+   - Quit WebDriver
+   - Clean up ThreadLocal storage
+
+## 📊 Test Reports
+
+Cucumber generates HTML reports in `target/cucumber-reports.html` after test execution.
+
+## 🐛 Troubleshooting
 
 ### Grid Connection Issues
+
 - Ensure Selenium Grid Hub is running on `http://192.168.10.69:4444`
 - Check network connectivity to the Grid Hub
 - Verify Grid nodes are registered and available
+- Check Grid Hub logs for connection errors
 
 ### Browser Issues
-- For local execution, ensure browser drivers are in PATH
-- For Grid execution, ensure Grid nodes have the required browsers installed
+
+**Local Execution:**
+- Ensure browser drivers (ChromeDriver/GeckoDriver) are in PATH
+- Verify browser versions match driver versions
+- Check browser installation and accessibility
+
+**Grid Execution:**
+- Ensure Grid nodes have required browsers installed
+- Verify browser versions on Grid nodes
+- Check node registration status on Grid Hub
 
 ### Test Failures
+
 - Check console output for WebDriver initialization messages
 - Verify Grid URL and browser configuration
 - Ensure test environment has proper network access
+- Check element locators if tests fail on element interaction
+- Review Cucumber HTML reports for detailed failure information
+
+### Common Issues
+
+- **Driver not found**: Add driver to PATH or use WebDriverManager
+- **Grid timeout**: Check Grid Hub availability and network connectivity
+- **Element not found**: Verify locators and add appropriate waits
+- **Thread safety issues**: Ensure using DriverManager for parallel execution
+
+## 📝 Notes
+
+- The framework uses explicit waits (WebDriverWait) with 10-second timeout
+- ThreadLocal ensures thread-safe WebDriver management for parallel execution
+- Grid URL is hardcoded in `WebDriverConfig.java` - modify if needed
+- Test runner is configured with tag `@fajar` - modify in `TestRunner.java` if needed
+
+## 🔄 Future Enhancements
+
+- Add WebDriverManager for automatic driver management
+- Support for additional browsers (Edge, Safari)
+- Screenshot capture on test failures
+- Allure reporting integration
+- CI/CD pipeline configuration examples
+- Parallel test execution configuration
