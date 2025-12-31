@@ -12,6 +12,7 @@ A comprehensive Selenium WebDriver testing framework built with Java, Maven, and
 - **Configurable Execution**: Easy switching between local and grid execution modes
 - **Explicit Waits**: Robust element waiting strategies using WebDriverWait
 - **Maven Profiles**: Pre-configured profiles for different execution scenarios
+- **Automatic Screenshot Capture**: Screenshots automatically captured on test failures and attached to reports
 
 ## 📋 Prerequisites
 
@@ -60,7 +61,7 @@ The framework uses system properties to configure execution:
 
 ### Grid Configuration
 
-- **Grid URL**: `http://192.168.10.69:4444`
+- **Grid URL**: `http://localhost:4444` (configurable in `WebDriverConfig.java`)
 - **Chrome Options**: 
   - `--no-sandbox`
   - `--disable-dev-shm-usage`
@@ -151,6 +152,7 @@ The framework currently includes:
   - Logs execution mode and browser
 
 - **@After**: Cleans up WebDriver resources
+  - Captures screenshot on test failure
   - Quits and removes driver from ThreadLocal
 
 ### WebDriver Configuration
@@ -181,13 +183,15 @@ The framework currently includes:
 
 ## 📊 Test Reports
 
-Cucumber generates HTML reports in `target/cucumber-reports.html` after test execution.
+Cucumber generates test reports after execution:
+- **HTML Report**: `target/cucumber-reports.html` - Visual test execution report
+- **JSON Report**: `target/cucumber-reports.json` - Machine-readable report for integration with other tools
 
 ## 🐛 Troubleshooting
 
 ### Grid Connection Issues
 
-- Ensure Selenium Grid Hub is running on `http://192.168.10.69:4444`
+- Ensure Selenium Grid Hub is running on `http://localhost:4444` (or update `GRID_URL` in `WebDriverConfig.java`)
 - Check network connectivity to the Grid Hub
 - Verify Grid nodes are registered and available
 - Check Grid Hub logs for connection errors
@@ -223,14 +227,15 @@ Cucumber generates HTML reports in `target/cucumber-reports.html` after test exe
 
 - The framework uses explicit waits (WebDriverWait) with 10-second timeout
 - ThreadLocal ensures thread-safe WebDriver management for parallel execution
-- Grid URL is hardcoded in `WebDriverConfig.java` - modify if needed
+- Grid URL is configured in `WebDriverConfig.java` (default: `http://localhost:4444`) - modify if needed
 - Test runner is configured with tag `@fajar` - modify in `TestRunner.java` if needed
+- Screenshots are automatically captured on test failures and attached to Cucumber reports
 
 ## 🔄 Future Enhancements
 
 - Add WebDriverManager for automatic driver management
 - Support for additional browsers (Edge, Safari)
-- Screenshot capture on test failures
 - Allure reporting integration
 - CI/CD pipeline configuration examples
 - Parallel test execution configuration
+- Enhanced logging and reporting capabilities
